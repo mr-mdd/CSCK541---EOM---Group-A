@@ -73,7 +73,9 @@ class Branston:
                 raise Exception("Invalid Pickling Format")
 
     def pickle(self, data):
-        pass
+        """Returns a pickled bytes object"""
+        return self._serialisation_function(data)
 
     def unpickle(self, data):
-        pass
+        """Returns an unpickled string of the data"""
+        return self._deserialisation_function(data)
