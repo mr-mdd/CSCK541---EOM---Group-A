@@ -1,13 +1,14 @@
 """Module for running the Branston Classes"""
 # Author: Daniel Davis
 # Group: CSCK451 Group A
-# Date: 28/09/2023
+# Date: 29/09/2023
 
 import branston
 import client
 from crypt import Crypt
 import server
 from enums import *
+from cwizard import ClientWizard
 
 
 # Pickle Unit Tests ********************************************************
@@ -46,3 +47,8 @@ from enums import *
 # print('Unencrypted: ', bsettings[-5])   # 16
 # print('Encrypted: ', bsettings[-6])     # 32
 # Is this really an improvement?
+
+# User Wizard Test
+my_wizard = ClientWizard()
+my_wizard.ask_all()
+my_wizard.display()
