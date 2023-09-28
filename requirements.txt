@@ -1,0 +1,4 @@
+rsa~=4.9
+dict2xml~=1.7.3
+xmltodict~=0.13.0
+dicttoxml~=1.7.16
