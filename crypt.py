@@ -1,7 +1,7 @@
 """Module handling Encryption and Decryption"""
 # Author: Daniel Davis
 # Group: CSCK451 Group A
-# Date: 27/09/2023
+# Date: 30/09/2023
 # Reference: https://www.geeksforgeeks.org/how-to-encrypt-and-decrypt-strings-in-python/
 # Reference: https://stackoverflow.com/questions/682504/what-is-a-clean-pythonic-way-to-implement-multiple-constructors
 # Reference: https://pythonw3schools.com/data-hiding-in-python/
@@ -13,25 +13,23 @@ class Crypt:
     """Class for asymmetrical encryption"""
 
     @classmethod
-    def server(cls):
-        """Returns the class initialised for a Server"""
+    def new_keys(cls):
+        """Returns the class initialised with new Public and Private Keys for decryption"""
         return cls(None)
 
     @classmethod
-    def client(cls, public_key):
-        """Returns the class initialised for a Client"""
+    def with_key(cls, public_key):
+        """Returns the class initialised with a Public Key for encryption only"""
         return cls(public_key)
 
     def __init__(self, public_key):
         if public_key is None:
-            # Generates new public and private keys for Server
+            # Generates new public and private keys
             self._public_key, self.__private_key = rsa.newkeys(512)
-            self._server = True
         else:
-            # Applies a given public key for Client
+            # Applies a given public key
             self._public_key = public_key
             self.__private_key = None
-            self._server = False
 
     def get_public_key(self):
         """Attribute Getter for Public Key"""
@@ -43,7 +41,7 @@ class Crypt:
 
     def decrypt(self, data):
         """Returns decrypted data"""
-        if self._server:
-            return rsa.decrypt(data, self.__private_key).decode()
+        if self.__private_key is None:
+            raise Exception("Functionality requires Private Key")
         else:
-            raise Exception("Functionality not available Client Side")
+            return rsa.decrypt(data, self.__private_key).decode()
