@@ -3,11 +3,13 @@ import uuid
 
 # Author: Daniel Davis
 # Group: CSCK451 Group A
-# Date: 29/09/2023
+# Date: 02/10/2023
 # Reference: https://stackoverflow.com/questions/319279/how-to-validate-ip-address-in-python
-from enums import *
+# Reference: https://stackoverflow.com/questions/847850/cross-platform-way-of-getting-temp-directory-in-python
+from enums import Source, Format, SecurityLevel
 import os
 import ipaddress
+# import tempfile  # required for alternative method
 
 
 class ClientSettings:
@@ -176,6 +178,9 @@ class ClientWizard:
 
     def _choose_textfile_directory(self):
         """Asks the user to select the output directory for created textfiles"""
+        # Leaving this here for alternative approach of saving file to temp directory
+        # temp_dir = tempfile.gettempdir()
+
         print("\nPlease choose where to save textfiles")
         response = input("directory: ")
         if os.path.exists(response):
