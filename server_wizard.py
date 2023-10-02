@@ -4,12 +4,13 @@ import socket
 
 # Author: Daniel Davis
 # Group: CSCK451 Group A
-# Date: 29/09/2023
-from enums import *
+# Date: 02/10/2023
+from enums import ServerClients, ServerDestination
 
 
 class ServerSettings:
     """Struct which will be used to pass instantiation values the Server"""
+    client_source = None
     port_number = None
     data_destination = None
     output_dir = None
@@ -25,12 +26,26 @@ class ServerWizard:
         """Attribute getter for the server settings object"""
         return self._server_settings
 
+    def _choose_clients(self):
+        """Ask the user whether to accept clients from other computers"""
+        print("\Please configure the Branston Server for clients on a single PC or multiple PCs")
+        response = input("s/m: ")
+        # Input Validation
+        if response not in "sm":
+            "Invalid client source"
+            self._choose_clients()
+        elif response == "s":
+            self._server_settings.client_source = ServerClients.SinglePC
+        else:
+            self._server_settings.client_source = ServerClients.MultiPC
+
     def _choose_port(self):
         """Asks the user to input the port number"""
         print("\nPlease choose the Server Port")
         response = input("Number (1 - 65535): ")
-        # Input Validation - must be a number and must be between 1 and 65535
-        if response.isnumeric and int(response) in range(65535):
+        # Input Validation - must be a number and must be between 1023 and 65535
+        # 1 to 1023 are reserved ports
+        if response.isnumeric and int(response) in range(1024, 65535):
             self._server_settings.port_number = int(response)
         else:
             print("Invalid Port Number")
@@ -82,7 +97,7 @@ class ServerWizard:
     def ask_all(self):
         """Runs the Wizard"""
         print("\n*** Welcome to the server Wizard ***")
-
+        self._choose_clients()
         self._choose_port()
         self._choose_output()
         self._choose_output_directory()
