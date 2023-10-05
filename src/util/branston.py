@@ -10,7 +10,8 @@ import json
 # import dict2xml
 from dicttoxml import dicttoxml
 import xmltodict
-from enums import *
+
+from src.util.enums import Format
 
 
 class Branston:

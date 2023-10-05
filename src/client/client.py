@@ -4,10 +4,10 @@
 # Date: 02/10/2023
 # Reference: https://www.bogotobogo.com/python/python_network_programming_server_client_file_transfer.php
 
-from branston import Branston
+from src.util.branston import Branston
 import socket
-from enums import SecurityLevel, Source
-from crypt import Crypt
+from src.util.enums import SecurityLevel, Source
+from src.util.crypt import Crypt
 
 
 class Client:
@@ -30,7 +30,7 @@ class Client:
         self.parts = None
 
     def _get_socket(self):
-        host = socket.gethostname()  # Local Machine Name
+        host = self.hostname
         my_sock = socket.socket()  # Create a socket object
         port = self.port_number  # reserve a port
         my_sock.connect((host, port))  # bind the socket to the port of the machine
