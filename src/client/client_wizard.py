@@ -1,14 +1,17 @@
 """Module to help the user build a dictionary and choose options"""
 import uuid
 
+from src.client import client
 # Author: Daniel Davis
 # Group: CSCK451 Group A
 # Date: 02/10/2023
 # Reference: https://stackoverflow.com/questions/319279/how-to-validate-ip-address-in-python
 # Reference: https://stackoverflow.com/questions/847850/cross-platform-way-of-getting-temp-directory-in-python
-from enums import Source, Format, SecurityLevel
+from src.util.enums import Source, Format, SecurityLevel
 import os
 import ipaddress
+
+
 # import tempfile  # required for alternative method
 
 
@@ -236,3 +239,11 @@ class ClientWizard:
 
         print(f"Filepath: {self._settings.filepath}")
         print(f"Security: {self._settings.security_level.name}")
+
+
+if __name__ == "__main__":
+    my_client_wizard = ClientWizard()
+    my_client_wizard.ask_all()
+    my_client_wizard.display()
+    my_client = client.Client(my_client_wizard.get_client_settings())
+    my_client.connect()
