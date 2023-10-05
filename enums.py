@@ -36,7 +36,7 @@ class Conversation(Enum):
     DataReceived = 260
     ErrorReadingData = 261
 
-
+    
 class ServerDestination(Enum):
     """Server output option"""
     # Used only by Server
