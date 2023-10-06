@@ -1,3 +1,5 @@
+import os 
+import socket
 import unittest
 from unittest.mock import patch
 from src.client.client import Client
