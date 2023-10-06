@@ -14,6 +14,7 @@ from src.util.branston import Branston
 class ClientManager:
     """ClientManager Class handles connection from Client"""
     BUFFER = 1024  # does anyone know why this value? or should it be changed?
+    ENCODING_FORMAT = 'utf-8'
 
     def __init__(self, sock, destination, output_directory):
         self.socket = sock
@@ -35,13 +36,14 @@ class ClientManager:
 
     def run(self):
         """Control procedure handling receipt of data from client"""
-        self.message = self.socket.recv(self.BUFFER).decode('utf-8')
+        self.message = self.socket.recv(self.BUFFER).decode(self.ENCODING_FORMAT)
         self.parse_message()
 
     def parse_message(self):
         """What shall I do with this communication?"""
 
-        self.parts = self.message.split('\0')
+        split_message = self.message.split('\x00')
+        self.parts = split_message[1:-1]
 
         # Message Protocol 1: Client - Initialization Message
         # Initial request has 3 elements

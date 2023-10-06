@@ -12,6 +12,7 @@ from src.util.crypt import Crypt
 
 class Client:
     BUFFER_SIZE = 1024
+    ENCODING_FORMAT = 'utf-8'
 
     def __init__(self, settings):
         self.hostname = settings.hostname
@@ -84,11 +85,11 @@ class Client:
 
     # Message Protocol 1: Initialisation Message
     def send_initialisation_message(self):
-        message = f"\0[{self.format}]\0[{self.source}]\0[{self.security}]\0"
-        self.sock.send(message)
+        message = f"\0{self.format}\0{self.source}\0{self.security}\0"
+        self.sock.send(message.encode(self.ENCODING_FORMAT))
 
     # Message Protocol 3: Payload Message
     def send_payload(self):
         self.prepare_package()
         message = f"\0[{self._package_data}]\0END\0"
-        self.sock.send(message)
+        self.sock.send(message.encode(self.ENCODING_FORMAT))
