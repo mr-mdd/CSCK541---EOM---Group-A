@@ -64,11 +64,13 @@ class Client:
                 self._package_data = text_data
 
     def parse_message(self):
-        self.parts = self.message.decode(self.ENCODING_FORMAT).split('\x00')
-        if self.parts[1] != "ACK":
+        split_message = self.message.decode(self.ENCODING_FORMAT).split('\x00')
+        self.parts = split_message[1:-1]
+
+        if self.parts[0] != "ACK":
             print("Message does not conform to Branston protocol")
         else:
-            key = self.parts[2]
+            key = self.parts[-1]
             if key != "NULL":
                 self._public_key = key
 
