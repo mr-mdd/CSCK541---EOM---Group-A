@@ -1,1 +1,32 @@
-Directory Tree TBD
+CSCK541---EOM---Group-A/
+┣ docs/
+┃ ┣ LICENSE
+┃ ┣ README.md
+┃ ┗ directorytree.txt
+┣ src/
+┃ ┣ client/
+┃ ┃ ┣ __init__.py
+┃ ┃ ┣ client.py
+┃ ┃ ┗ client_wizard.py
+┃ ┣ server/
+┃ ┃ ┣ __init__.py
+┃ ┃ ┣ client_manager.py
+┃ ┃ ┣ server.py
+┃ ┃ ┗ server_wizard.py
+┃ ┣ util/
+┃ ┃ ┣ __init__.py
+┃ ┃ ┣ branston.py
+┃ ┃ ┣ crypt.py
+┃ ┃ ┗ enums.py
+┃ ┗ __init__.py
+┣ tests/
+┃ ┣ performance/
+┃ ┃ ┣ __init__.py
+┃ ┃ ┣ perf_test_client.py
+┃ ┃ ┗ perf_test_server.py
+┃ ┗ unit tests/
+┃   ┣ __init__.py
+┃   ┣ unit_test_client.py
+┃   ┣ unit_test_server.py
+┃   ┗ unit_test_util.py
+┗ .gitignore
