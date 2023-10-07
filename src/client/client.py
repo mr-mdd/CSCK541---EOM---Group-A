@@ -32,64 +32,53 @@ class Client:
 
     def _get_socket(self):
         host = self.hostname
-        my_sock = socket.socket()  # Create a socket object
-        port = self.port_number  # reserve a port
-        my_sock.connect((host, port))  # bind the socket to the port of the machine
+        my_sock = socket.socket()
+        port = self.port_number
+        my_sock.connect((host, port))
         return my_sock
 
     def connect(self):
-        sock = self._get_socket()
-        self.sock = sock
+        self.sock = self._get_socket()
         self.send_initialisation_message()
-
-        while True:
-            data = self.sock.recv(self.BUFFER_SIZE)
-            if not data:
-                continue
-            else:
-                self.message = data
-                print(self.message)
-                # Parse message for Public Key
-                self.parse_message()
-                # DoTheThang
-                self.send_payload()
+        data = self.sock.recv(self.BUFFER_SIZE)
+        if not data:
+            print("No response from the server.")
+            return
+        else:
+            self.message = data
+            self.parse_message()
+        self.send_payload()
 
     def prepare_package(self):
         if self.source == Source.Dictionary:
-            # pickle the data
             self.pickler = Branston()
-            self.pickler.set_pickling_format(self.format)
+            self.pickler.set_pickling_format(self.format.value)
             self._package_data = self.pickler.pickle(self.dictionary)
-
-        if self.source == Source.TextFile:
+        elif self.source == Source.TextFile:
             with open(self.filepath, "r") as infile:
                 text_data = infile.readlines()
-            if self.security == SecurityLevel.Encrypted:
+            if self.security == SecurityLevel.Encrypted.value:
                 self.crypt = Crypt.with_key(self._public_key)
                 self._package_data = self.crypt.encrypt(text_data)
             else:
                 self._package_data = text_data
 
     def parse_message(self):
-        self.parts = self.message.split('\0')
-        # Message Protocol 2.1: Acknowledge message with Public Key
-        # Message Protocol 2.2: Acknowledge message without Public Key
-        if self.parts[0] != "ACK":
-            # Spurious Message
+        self.parts = self.message.decode(self.ENCODING_FORMAT).split('\x00')
+        if self.parts[1] != "ACK":
             print("Message does not conform to Branston protocol")
-
-        # Set Public Key
-        key = self.parts[1]
-        if key is not None:
-            self._public_key = self.parts[1]
+        else:
+            key = self.parts[2]
+            if key != "NULL":
+                self._public_key = key
 
     # Message Protocol 1: Initialisation Message
     def send_initialisation_message(self):
-        message = f"\0{self.format}\0{self.source}\0{self.security}\0"
+        message = f"\0{self.format.value}\0{self.source.value}\0{self.security.value}\0"
         self.sock.send(message.encode(self.ENCODING_FORMAT))
 
     # Message Protocol 3: Payload Message
     def send_payload(self):
         self.prepare_package()
-        message = f"\0[{self._package_data}]\0END\0"
+        message = f"\0{self._package_data}\0END\0"
         self.sock.send(message.encode(self.ENCODING_FORMAT))

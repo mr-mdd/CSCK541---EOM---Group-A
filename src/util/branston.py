@@ -36,19 +36,19 @@ class Branston:
         self._pickling_format = pickling_format
 
         match pickling_format:
-            case Format.BINARY:
+            case Format.BINARY.value:
                 self._write_format = "wb"
                 self._read_format = "rb"
                 self._serialisation_function = pickle.dumps
                 self._deserialisation_function = pickle.loads
 
-            case Format.JSON:
+            case Format.JSON.value:
                 self._write_format = "w"
                 self._read_format = "r"
                 self._serialisation_function = json.dumps
                 self._deserialisation_function = json.loads
 
-            case Format.XML:
+            case Format.XML.value:
                 self._write_format = "w"
                 self._read_format = "r"
                 self._serialisation_function = dicttoxml

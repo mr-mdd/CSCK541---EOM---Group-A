@@ -13,7 +13,7 @@ from src.util.branston import Branston
 
 class ClientManager:
     """ClientManager Class handles connection from Client"""
-    BUFFER = 1024  # does anyone know why this value? or should it be changed?
+    BUFFER = 1024  # 1KB
     ENCODING_FORMAT = 'utf-8'
 
     def __init__(self, sock, destination, output_directory):
@@ -27,7 +27,6 @@ class ClientManager:
         # Data Processors
         self.crypt = Crypt.new_keys()
         self.pickler = Branston()
-        # Instance Variables
         self.message = None
         self.parts = None
         self.received_data = None
@@ -41,57 +40,50 @@ class ClientManager:
 
     def parse_message(self):
         """What shall I do with this communication?"""
-
         split_message = self.message.split('\x00')
         self.parts = split_message[1:-1]
-
-        # Message Protocol 1: Client - Initialization Message
-        # Initial request has 3 elements
         if len(self.parts) == 3:
-            # This is an initial request
             self.apply_client_settings()
-            self.acknowledge_client()
+            self.__acknowledge_client()
+            self.__await_payload()
 
-        # Message Protocol 3: Payload Message (post-ACK)
-        # Payload has last element of END
         elif self.parts[-1] == "END":
-            # This is the payload
             self.received_data = self.parts[-2]
             self.decrypt_data()
             self.process_by_source()
             self.output()
-
-        # This is a spurious message - do not process
         else:
             print("Message does not conform to Branston protocol")
 
     def apply_client_settings(self):
-        if self.parts[0] is not None:
-            self.pickler.set_pickling_format(self.parts[0])
-        self.data_source = self.parts[1]
-        self.security_level = self.parts[2]
+        if self.parts[0] != "":
+            self.pickler.set_pickling_format(int(self.parts[0]))
+        self.data_source = int(self.parts[1])
+        self.security_level = int(self.parts[2])
 
-    def acknowledge_client(self):
-        if self.security_level == SecurityLevel.Encrypted:
-            # Message Protocol 2.1: Acknowledge message with Public Key
-            message = f"\0ACK\0[{self.crypt.get_public_key()}]\0"
+    def __acknowledge_client(self):
+        if self.security_level == SecurityLevel.Encrypted.value:
+            message = f"\x00ACK\x00{self.crypt.get_public_key()}\x00"
         else:
-            # Message Protocol 2.2: Acknowledge message without Public Key
-            message = "\0ACK%NULL\0"
-        self.socket.send(message)
+            message = "\x00ACK\x00NULL\x00"
+        self.socket.send(message.encode(self.ENCODING_FORMAT))
+
+    def __await_payload(self):
+        self.message = self.socket.recv(self.BUFFER).decode(self.ENCODING_FORMAT)
+        self.parse_message()
 
     def decrypt_data(self):
         """Decrypts the received data if required"""
-        if self.security_level == SecurityLevel.Encrypted:
+        if self.security_level == SecurityLevel.Encrypted.value:
             self.decrypted_data = self.crypt.decrypt(self.received_data)
         else:
             self.decrypted_data = self.received_data
 
     def process_by_source(self):
         """Calls appropriate processing"""
-        if self.data_source == Source.TextFile:
+        if self.data_source == Source.TextFile.value:
             self.process_textfile()
-        if self.data_source == Source.Dictionary:
+        elif self.data_source == Source.Dictionary.value:
             self.process_dictionary()
 
     def process_textfile(self):
