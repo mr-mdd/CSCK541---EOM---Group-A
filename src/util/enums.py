@@ -23,20 +23,10 @@ class Source(Enum):
 
 class SecurityLevel(Enum):
     # Used by Client and Server
-    UnEncrypted = 16
+    Plain = 16
     Encrypted = 32
 
 
-class Conversation(Enum):
-    # Used by Client and Server
-    CanISendData = 256
-    SendDataFormat = 257
-    PublicKeyReceived = 258
-    SendData = 259
-    DataReceived = 260
-    ErrorReadingData = 261
-
-    
 class ServerDestination(Enum):
     """Server output option"""
     # Used only by Server

@@ -121,7 +121,7 @@ class ClientWizard:
                 self._settings.security_level = SecurityLevel.Encrypted
             case "n":
                 print("You chose not to encrypt the file")
-                self._settings.security_level = SecurityLevel.UnEncrypted
+                self._settings.security_level = SecurityLevel.Plain
             case _:
                 print("Invalid security level")
                 self._choose_security()
