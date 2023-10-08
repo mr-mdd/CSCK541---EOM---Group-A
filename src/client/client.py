@@ -1,8 +1,6 @@
 """Module for sending data to server"""
-import ast
 import json
 
-import rsa
 from rsa import PublicKey
 
 # Author: Daniel Davis
