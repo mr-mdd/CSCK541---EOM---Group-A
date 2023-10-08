@@ -81,7 +81,8 @@ class Client:
                 self._package_data = text_data.encode(self.ENCODING_FORMAT)  # Convert to bytes
 
     def parse_message(self):
-        decoded_message = self.message[4:].decode(self.ENCODING_FORMAT)  # Trim message length and decode the payload
+        # Skip Header (message_length) and decode the payload
+        decoded_message = self.message[4:].decode(self.ENCODING_FORMAT)
 
         # Check message format
         if "ACK" in decoded_message and "END" in decoded_message:

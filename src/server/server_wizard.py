@@ -1,7 +1,7 @@
 """Module to help the user initialise the server"""
 import os
 import socket
-import server
+from src.server import server
 
 # Author: Daniel Davis
 # Group: CSCK451 Group A
@@ -29,7 +29,7 @@ class ServerWizard:
 
     def _choose_clients(self):
         """Ask the user whether to accept clients from other computers"""
-        print("\Please configure the Branston Server for clients on a single PC or multiple PCs")
+        print("\nPlease configure the Branston Server for clients on a single PC or multiple PCs")
         response = input("s/m: ")
         # Input Validation
         if response not in "sm":

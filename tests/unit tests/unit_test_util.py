@@ -1,7 +1,7 @@
 import unittest
 from src.util.branston import Branston, Format
 from src.util.crypt import Crypt
-from src.util.enums import Format, Source, SecurityLevel, Conversation, ServerDestination, ServerClients 
+from src.util.enums import Format, Source, SecurityLevel, ServerDestination
 import rsa
 
 
@@ -15,8 +15,8 @@ class TestBranston(unittest.TestCase):
     # Tests the ability to set a different pickling format
     def test_set_pickling_format(self):
         branston = Branston()
-        branston.set_pickling_format(Format.JSON)
-        self.assertEqual(branston.get_pickling_format(), Format.JSON)
+        branston.set_pickling_format(Format.JSON.value)
+        self.assertEqual(branston.get_pickling_format(), Format.JSON.value)
 
     # Tests the exception raised when setting an invalid pickling format
     def test_invalid_pickling_format(self):
@@ -35,7 +35,7 @@ class TestBranston(unittest.TestCase):
     # Tests the pickling and unpickling of data in JSON format
     def test_pickle_json(self):
         branston = Branston()
-        branston.set_pickling_format(Format.JSON)
+        branston.set_pickling_format(Format.JSON.value)
         data = {"key": "value"}
         pickled_data = branston.pickle(data)
         unpickled_data = branston.unpickle(pickled_data)
@@ -88,11 +88,7 @@ class TestEnums(unittest.TestCase):
 
     # Tests that the SecurityLevel enum has the correct value for UnEncrypted
     def test_security_level_enum(self):
-        self.assertEqual(SecurityLevel.UnEncrypted.value, 16)
-
-    # Tests that the Conversation enum has the correct value for CanISendData
-    def test_conversation_enum(self):
-        self.assertEqual(Conversation.CanISendData.value, 256)
+        self.assertEqual(SecurityLevel.Plain.value, 16)
 
     # Tests that the ServerDestination enum has the correct value for Print
     def test_server_destination_enum(self):

@@ -1,10 +1,11 @@
 """Module for managing a connection from a client"""
-import json
 # Idea and outline: Miguel Valadas
 # Message Protocol: Miguel Valadas
 # Author: Daniel Davis
 # Group: CSCK451 Group A
 # Date: 02/10/2023
+
+import json
 import os
 import uuid
 from datetime import datetime
@@ -16,8 +17,10 @@ from src.util.enums import ServerDestination, Source, SecurityLevel, Format
 
 class ClientManager:
     """ClientManager Class handles connection from Client"""
-    BUFFER = 1024  # 1KB
     ENCODING_FORMAT = 'utf-8'
+    # Using big-endian, i.e., the most significant byte is at the beginning of the array (like a regular book).
+    # It is important to use big-endian because Branston Protocol expects data in a certain order
+    BYTE_ORDER = 'big'
 
     def __init__(self, sock, destination, output_directory):
         self.pickling_format = None
@@ -32,7 +35,6 @@ class ClientManager:
         self.crypt = Crypt.new_keys()
         self.pickler = Branston()
         self.message = None
-        self.parts = None
         self.received_data = None
         self.decrypted_data = None
         self.processed_data = None
@@ -44,11 +46,12 @@ class ClientManager:
             try:
                 # Get the length of the upcoming message
                 length_data = self.socket.recv(4)
-                if not length_data:
+                if not length_data:  # If length_data is empty, the client has disconnected.
                     print(f"[{datetime.now()}] - Client has disconnected.")
                     break
 
-                message_length = int.from_bytes(length_data, 'big')
+                # Convert the received message length to an int, using big-endian for the byte order
+                message_length = int.from_bytes(length_data, self.BYTE_ORDER)
                 self.message = self.socket.recv(message_length)
 
                 if not self.message:
@@ -73,7 +76,7 @@ class ClientManager:
 
         if self.pickling_format != Format.BINARY.value and self.security_level != SecurityLevel.Encrypted.value:
             try:
-                decoded_message = self.message.decode('utf-8')
+                decoded_message = self.message.decode(self.ENCODING_FORMAT)
                 self.received_data = decoded_message
             except UnicodeDecodeError:
                 print("Error: Unable to decode the message.")
@@ -86,11 +89,11 @@ class ClientManager:
         self.output()
 
     def apply_client_settings(self):
-        self.pickling_format = int.from_bytes(self.message[:1], 'big')
+        self.pickling_format = int.from_bytes(self.message[:1], self.BYTE_ORDER)
         if self.pickling_format != 0:
             self.pickler.set_pickling_format(self.pickling_format)
-        self.data_source = int.from_bytes(self.message[1:2], 'big')
-        self.security_level = int.from_bytes(self.message[2:3], 'big')
+        self.data_source = int.from_bytes(self.message[1:2], self.BYTE_ORDER)
+        self.security_level = int.from_bytes(self.message[2:3], self.BYTE_ORDER)
 
     def __acknowledge_client(self):
         if self.security_level == SecurityLevel.Encrypted.value:
@@ -105,16 +108,16 @@ class ClientManager:
         message_bytes = message.encode(self.ENCODING_FORMAT)
         length = len(message_bytes)
 
-        self.socket.send(length.to_bytes(4, 'big') + message_bytes)
+        self.socket.send(length.to_bytes(4, self.BYTE_ORDER) + message_bytes)
         self.has_acknowledged_client = True
 
     def _await_payload(self):
         length_data = self.socket.recv(4)
-        message_length = int.from_bytes(length_data, 'big')
+        message_length = int.from_bytes(length_data, self.BYTE_ORDER)
         self.message = self.socket.recv(message_length)
 
         if self.pickling_format != Format.BINARY.value or not self.has_acknowledged_client:
-            self.message = self.message.decode('utf-8')
+            self.message = self.message.decode(self.ENCODING_FORMAT)
         self.parse_message()
 
     def decrypt_data(self):
