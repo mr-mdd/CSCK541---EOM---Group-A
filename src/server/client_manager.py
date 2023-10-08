@@ -1,4 +1,5 @@
 """Module for managing a connection from a client"""
+import json
 # Idea and outline: Miguel Valadas
 # Message Protocol: Miguel Valadas
 # Author: Daniel Davis
@@ -6,9 +7,11 @@
 # Date: 02/10/2023
 import os
 import uuid
-from src.util.enums import ServerDestination, Source, SecurityLevel
-from src.util.crypt import Crypt
+from datetime import datetime
+
 from src.util.branston import Branston
+from src.util.crypt import Crypt
+from src.util.enums import ServerDestination, Source, SecurityLevel, Format
 
 
 class ClientManager:
@@ -17,6 +20,7 @@ class ClientManager:
     ENCODING_FORMAT = 'utf-8'
 
     def __init__(self, sock, destination, output_directory):
+        self.pickling_format = None
         self.socket = sock
         # Settings from Server Wizard
         self.data_destination = destination
@@ -32,49 +36,90 @@ class ClientManager:
         self.received_data = None
         self.decrypted_data = None
         self.processed_data = None
+        self.has_acknowledged_client = False
 
     def run(self):
         """Control procedure handling receipt of data from client"""
-        self.message = self.socket.recv(self.BUFFER).decode(self.ENCODING_FORMAT)
-        self.parse_message()
+        while True:
+            try:
+                # Get the length of the upcoming message
+                length_data = self.socket.recv(4)
+                if not length_data:
+                    print(f"[{datetime.now()}] - Client has disconnected.")
+                    break
+
+                message_length = int.from_bytes(length_data, 'big')
+                self.message = self.socket.recv(message_length)
+
+                if not self.message:
+                    print(f"[{datetime.now()}] - Client has disconnected.")
+                    break
+
+                self.parse_message()
+
+            except Exception as e:
+                print(f"[{datetime.now()}] - Error occurred: {e}")
+                break
 
     def parse_message(self):
         """What shall I do with this communication?"""
-        split_message = self.message.split('\x00')
-        self.parts = split_message[1:-1]
-        if len(self.parts) == 3:
+        if len(self.message) == 3:  # Check if it's an init message
             self.apply_client_settings()
             self.__acknowledge_client()
-            self.__await_payload()
+            return
 
-        elif self.parts[-1] == "END":
-            self.received_data = self.parts[-2]
-            self.decrypt_data()
-            self.process_by_source()
-            self.output()
+        if self.message.endswith(b"END"):
+            self.message = self.message[:-3]
+
+        if self.pickling_format != Format.BINARY.value and self.security_level != SecurityLevel.Encrypted.value:
+            try:
+                decoded_message = self.message.decode('utf-8')
+                self.received_data = decoded_message
+            except UnicodeDecodeError:
+                print("Error: Unable to decode the message.")
+                return
         else:
-            print("Message does not conform to Branston protocol")
+            self.received_data = self.message
+
+        self.decrypt_data()
+        self.process_by_source()
+        self.output()
 
     def apply_client_settings(self):
-        if self.parts[0] != "":
-            self.pickler.set_pickling_format(int(self.parts[0]))
-        self.data_source = int(self.parts[1])
-        self.security_level = int(self.parts[2])
+        self.pickling_format = int.from_bytes(self.message[:1], 'big')
+        if self.pickling_format != 0:
+            self.pickler.set_pickling_format(self.pickling_format)
+        self.data_source = int.from_bytes(self.message[1:2], 'big')
+        self.security_level = int.from_bytes(self.message[2:3], 'big')
 
     def __acknowledge_client(self):
         if self.security_level == SecurityLevel.Encrypted.value:
-            message = f"\x00ACK\x00{self.crypt.get_public_key()}\x00"
+            pub_key_data = {
+                'modulus': self.crypt.get_public_key().n,
+                'exponent': self.crypt.get_public_key().e
+            }
+            message = f"ACK{json.dumps(pub_key_data)}END"
         else:
-            message = "\x00ACK\x00NULL\x00"
-        self.socket.send(message.encode(self.ENCODING_FORMAT))
+            message = "ACKNULLEND"
 
-    def __await_payload(self):
-        self.message = self.socket.recv(self.BUFFER).decode(self.ENCODING_FORMAT)
+        message_bytes = message.encode(self.ENCODING_FORMAT)
+        length = len(message_bytes)
+
+        self.socket.send(length.to_bytes(4, 'big') + message_bytes)
+        self.has_acknowledged_client = True
+
+    def _await_payload(self):
+        length_data = self.socket.recv(4)
+        message_length = int.from_bytes(length_data, 'big')
+        self.message = self.socket.recv(message_length)
+
+        if self.pickling_format != Format.BINARY.value or not self.has_acknowledged_client:
+            self.message = self.message.decode('utf-8')
         self.parse_message()
 
     def decrypt_data(self):
         """Decrypts the received data if required"""
-        if self.security_level == SecurityLevel.Encrypted.value:
+        if self.security_level == SecurityLevel.Encrypted.value and self.data_source == Source.TextFile.value:
             self.decrypted_data = self.crypt.decrypt(self.received_data)
         else:
             self.decrypted_data = self.received_data
@@ -88,9 +133,10 @@ class ClientManager:
 
     def process_textfile(self):
         """Runs processes required for textfiles"""
-        # Removed decryption from here
-        # Left as stub if functionality added
-        pass
+        if self.decrypt_data is not None:
+            self.processed_data = self.decrypted_data
+        else:
+            self.processed_data = self.received_data
 
     def process_dictionary(self):
         """Runs processes required for Dictionaries"""
@@ -100,9 +146,10 @@ class ClientManager:
     def output(self):
         """Outputs the data to console or textfile as per server setting"""
         if self.data_destination == ServerDestination.Print:
-            print(self.processed_data)
+            print(f"[{datetime.now()}] - {self.processed_data}")
         if self.data_destination == ServerDestination.File:
             self.output_to_textfile()
+        self.has_acknowledged_client = False
 
     @staticmethod
     def get_new_filepath(output_directory):
@@ -116,4 +163,4 @@ class ClientManager:
         """Writes a textfile with the unpickled data"""
         file_path = self.get_new_filepath(self.output_directory)
         with open(file_path, "w") as outfile:
-            outfile.write(self.processed_data)
+            outfile.write(f"[{datetime.now()}] - {self.processed_data}")

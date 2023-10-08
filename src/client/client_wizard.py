@@ -39,7 +39,7 @@ class ClientWizard:
 
     def _choose_host(self):
         """Asks the user to input the Server"""
-        print("\nPlease type the hostname of the Server")
+        print("\nPlease type the hostname of the Server (insert 127.0.0.1 for localhost)")
         response = input("Server: ")
         # Input Validation - must not be blank
         if self.is_valid_ipaddress(response):

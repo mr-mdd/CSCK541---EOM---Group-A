@@ -90,7 +90,7 @@ class ServerWizard:
         print("\nPlease choose where to save textfiles")
         response = input("directory: ")
         if os.path.exists(response):
-            self._server_settings.filepath = response
+            self._server_settings.output_dir = response
         else:
             print("Invalid filepath")
             self._choose_output_directory()
@@ -102,8 +102,9 @@ class ServerWizard:
         self._choose_port()
         self._choose_output()
         self._choose_output_directory()
+        self._display()
 
-    def display(self):
+    def _display(self):
         """Displays a summary of the User Inputs"""
         print("\nUser Input Summary:\n")
 

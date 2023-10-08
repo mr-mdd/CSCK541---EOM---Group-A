@@ -7,7 +7,6 @@
 
 import pickle
 import json
-# import dict2xml
 from dicttoxml import dicttoxml
 import xmltodict
 
@@ -52,10 +51,7 @@ class Branston:
                 self._write_format = "w"
                 self._read_format = "r"
                 self._serialisation_function = dicttoxml
-                # self._serialisation_function = dict2xml.dict2xml
-                # TODO: xmltodict does not work with xml documents created by either of the above
-                # known error: Must have exactly one root
-                self._deserialisation_function = xmltodict.unparse
+                self._deserialisation_function = xmltodict.parse
 
             case _:
                 raise Exception("Invalid Pickling Format")
