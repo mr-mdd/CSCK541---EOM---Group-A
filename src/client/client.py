@@ -1,4 +1,8 @@
 """Module for sending data to server"""
+import json
+
+from rsa import PublicKey
+
 # Author: Daniel Davis
 # Group: CSCK451 Group A
 # Date: 02/10/2023
@@ -53,34 +57,78 @@ class Client:
         if self.source == Source.Dictionary:
             self.pickler = Branston()
             self.pickler.set_pickling_format(self.format.value)
-            self._package_data = self.pickler.pickle(self.dictionary)
+            package_data = self.pickler.pickle(self.dictionary)
+
+            # Ensure the package data is in bytes
+            if isinstance(package_data, str):
+                package_data = package_data.encode(self.ENCODING_FORMAT).strip()
+
+            self._package_data = package_data
+
         elif self.source == Source.TextFile:
             with open(self.filepath, "r") as infile:
-                text_data = infile.readlines()
-            if self.security == SecurityLevel.Encrypted.value:
+                text_data = infile.read()
+            if self.security == SecurityLevel.Encrypted:
                 self.crypt = Crypt.with_key(self._public_key)
-                self._package_data = self.crypt.encrypt(text_data)
+                encrypted_data = self.crypt.encrypt(text_data)
+
+                # Ensure the encrypted data is in bytes
+                if isinstance(encrypted_data, str):
+                    encrypted_data = encrypted_data.encode(self.ENCODING_FORMAT).strip()
+
+                self._package_data = encrypted_data
             else:
-                self._package_data = text_data
+                self._package_data = text_data.encode(self.ENCODING_FORMAT)  # Convert to bytes
 
     def parse_message(self):
-        split_message = self.message.decode(self.ENCODING_FORMAT).split('\x00')
-        self.parts = split_message[1:-1]
+        # Skip Header (message_length) and decode the payload
+        decoded_message = self.message[4:].decode(self.ENCODING_FORMAT)
 
-        if self.parts[0] != "ACK":
-            print("Message does not conform to Branston protocol")
+        # Check message format
+        if "ACK" in decoded_message and "END" in decoded_message:
+            content_start = decoded_message.index("ACK") + 3  # +3 to skip "ACK"
+            content_end = decoded_message.index("END")
+            content = decoded_message[content_start:content_end].strip()
+
+            if content == "NULL":
+                self._public_key = None
+
+            else:
+                try:
+                    key_data = json.loads(content)  # Directly load JSON from the content
+
+                    if 'modulus' in key_data and 'exponent' in key_data:  # Built directly to avoid data corruption
+                        modulus = int(key_data['modulus'])
+                        exponent = int(key_data['exponent'])
+                        self._public_key = PublicKey(modulus, exponent)
+                    else:
+                        print("Unexpected content format")
+
+                except json.JSONDecodeError:
+                    print("Failed to decode JSON content.")
         else:
-            key = self.parts[-1]
-            if key != "NULL":
-                self._public_key = key
+            print("Message does not conform to Branston protocol")
 
-    # Message Protocol 1: Initialisation Message
     def send_initialisation_message(self):
-        message = f"\0{self.format.value}\0{self.source.value}\0{self.security.value}\0"
-        self.sock.send(message.encode(self.ENCODING_FORMAT))
+        if self.format is None:
+            format_byte = b'\x00'
+        else:
+            format_byte = self.format.value.to_bytes(1, 'big')
 
-    # Message Protocol 3: Payload Message
+        message = format_byte + self.source.value.to_bytes(1, 'big') + self.security.value.to_bytes(1, 'big')
+
+        length = len(message)
+        self.sock.send(length.to_bytes(4, 'big') + message)
+
     def send_payload(self):
         self.prepare_package()
-        message = f"\0{self._package_data}\0END\0"
-        self.sock.send(message.encode(self.ENCODING_FORMAT))
+        end_marker = b"END"
+
+        # Check if package_data is a string and convert it to bytes if so
+        if isinstance(self._package_data, str):
+            self._package_data = self._package_data.encode(self.ENCODING_FORMAT).strip()
+
+        message_bytes = self._package_data + end_marker
+
+        length = len(message_bytes)
+        self.sock.send(length.to_bytes(4, 'big') + message_bytes)

@@ -1,7 +1,7 @@
 """Module to help the user initialise the server"""
 import os
 import socket
-import server
+from src.server import server
 
 # Author: Daniel Davis
 # Group: CSCK451 Group A
@@ -29,7 +29,7 @@ class ServerWizard:
 
     def _choose_clients(self):
         """Ask the user whether to accept clients from other computers"""
-        print("\Please configure the Branston Server for clients on a single PC or multiple PCs")
+        print("\nPlease configure the Branston Server for clients on a single PC or multiple PCs")
         response = input("s/m: ")
         # Input Validation
         if response not in "sm":
@@ -90,7 +90,7 @@ class ServerWizard:
         print("\nPlease choose where to save textfiles")
         response = input("directory: ")
         if os.path.exists(response):
-            self._server_settings.filepath = response
+            self._server_settings.output_dir = response
         else:
             print("Invalid filepath")
             self._choose_output_directory()
@@ -102,8 +102,9 @@ class ServerWizard:
         self._choose_port()
         self._choose_output()
         self._choose_output_directory()
+        self._display()
 
-    def display(self):
+    def _display(self):
         """Displays a summary of the User Inputs"""
         print("\nUser Input Summary:\n")
 

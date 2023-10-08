@@ -37,7 +37,9 @@ class Crypt:
 
     def encrypt(self, data):
         """Returns encrypted data"""
-        return rsa.encrypt(data.encode(), self._public_key)
+        if isinstance(data, str):
+            data = data.encode().strip()
+        return rsa.encrypt(data, self._public_key)
 
     def decrypt(self, data):
         """Returns decrypted data"""
