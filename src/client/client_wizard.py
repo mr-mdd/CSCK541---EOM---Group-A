@@ -62,7 +62,8 @@ class ClientWizard:
         print("\nPlease choose the Server Port")
         response = input("Number (1 - 65535): ")
         # Input Validation - must be a number and must be between 1 and 65535
-        if response.isnumeric and int(response) in range(65535):
+        # 1 to 1023 are reserved ports
+        if response.isnumeric and int(response) in range(1024, 65535):
             self._settings.port_number = int(response)
         else:
             print("Invalid Port Number")
