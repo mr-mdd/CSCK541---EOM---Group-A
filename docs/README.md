@@ -12,7 +12,8 @@ A functioning computer system (Windows/Mac/Linux).
 An installed version of Python 3.x.
 
 2. Installation & Setup:
-Clone git repository: https://github.com/mr-mdd/CSCK541---EOM---Group-A.git
+
+   Clone git repository: https://github.com/mr-mdd/CSCK541---EOM---Group-A.git
 
    Navigate to the Directory: cd CSCK541---EOM---Group-A
 
