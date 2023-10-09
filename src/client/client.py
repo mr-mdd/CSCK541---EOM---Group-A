@@ -15,7 +15,7 @@ from src.util.crypt import Crypt
 
 
 class Client:
-    BUFFER_SIZE = 1024
+    BUFFER_SIZE = 2048
     ENCODING_FORMAT = 'utf-8'
     BYTE_ORDER = 'big'
 
@@ -45,14 +45,19 @@ class Client:
     def connect(self):
         self.sock = self._get_socket()
         self.send_initialisation_message()
-        data = self.sock.recv(self.BUFFER_SIZE)
-        if not data:
-            print("No response from the server.")
-            return
-        else:
-            self.message = data
-            self.parse_message()
-        self.send_payload()
+        try:
+            data = self.sock.recv(self.BUFFER_SIZE)
+
+            if not data:
+                print("No response from the server.")
+                return
+            else:
+                self.message = data
+                self.parse_message()
+            self.send_payload()
+
+        except OverflowError:
+            print("Payload message is too big.")
 
     def prepare_package(self):
         if self.source == Source.Dictionary:
@@ -116,7 +121,8 @@ class Client:
         else:
             format_byte = self.format.value.to_bytes(1, self.BYTE_ORDER)
 
-        message = format_byte + self.source.value.to_bytes(1, self.BYTE_ORDER) + self.security.value.to_bytes(1, self.BYTE_ORDER)
+        message = format_byte + self.source.value.to_bytes(1, self.BYTE_ORDER) + self.security.value.to_bytes(1,
+                                                                                                              self.BYTE_ORDER)
 
         length = len(message)
         self.sock.send(length.to_bytes(4, self.BYTE_ORDER) + message)
