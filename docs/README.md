@@ -17,9 +17,9 @@ It includes an application to create a dictionary, serialisation it, and send to
 
    Clone git repository: https://github.com/mr-mdd/CSCK541---EOM---Group-A.git
 
-   Navigate to the Directory: cd CSCK541---EOM---Group-A
+   Navigate to the Directory: ```cd CSCK541---EOM---Group-A```
 
-   Ensure essential dependencies are installed via: pip install -r requirements.txt
+   Ensure essential dependencies are installed via: ```pip install -r requirements.txt```
 
 3. Initiate the Program:
 
