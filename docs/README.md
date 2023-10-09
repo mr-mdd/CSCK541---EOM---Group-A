@@ -23,7 +23,11 @@ It includes an application to create a dictionary, serialisation it, and send to
 
 3. Initiate the Program:
 
-   Post setup, run server_wizard.py and client_wizard.py
+  Post setup, go to the root of the project and run ```pip install -e .```
+
+   Then run the server_wizard: ```python3 -m src.server.server_wizard```
+
+   Then run the client_wizard: ```python3 -m src.client.client_wizard```
 
 
 **Testing**
