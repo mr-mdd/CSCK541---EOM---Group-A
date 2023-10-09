@@ -23,7 +23,7 @@ It includes an application to create a dictionary, serialisation it, and send to
 
 3. Initiate the Program:
 
-   Post setup, go to the root of the project and run ```pip install -e .```
+   Post setup, go to the root (CSCK541---EOM---Group-A) and run ```pip install -e .```
 
    Then run the server_wizard: ```python3 -m src.server.server_wizard```
 
