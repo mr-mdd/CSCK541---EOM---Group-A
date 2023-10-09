@@ -1,18 +1,15 @@
 """Module to help the user build a dictionary and choose options"""
-import uuid
 
-from src.client import client
 # Author: Daniel Davis
 # Group: CSCK451 Group A
 # Date: 02/10/2023
 # Reference: https://stackoverflow.com/questions/319279/how-to-validate-ip-address-in-python
 # Reference: https://stackoverflow.com/questions/847850/cross-platform-way-of-getting-temp-directory-in-python
 from src.util.enums import Source, Format, SecurityLevel
+from src.client import client
 import os
 import ipaddress
-
-
-# import tempfile  # required for alternative method
+import uuid
 
 
 class ClientSettings:
@@ -52,7 +49,7 @@ class ClientWizard:
     def is_valid_ipaddress(address):
         """Validates given IP Address"""
         try:
-            ip = ipaddress.ip_address(address)
+            ipaddress.ip_address(address)
             return True
         except ValueError:
             return False
@@ -60,9 +57,9 @@ class ClientWizard:
     def _choose_port(self):
         """Asks the user to input the port number"""
         print("\nPlease choose the Server Port")
-        response = input("Number (1 - 65535): ")
-        # Input Validation - must be a number and must be between 1 and 65535
-        if response.isnumeric and int(response) in range(65535):
+        response = input("Number (1024 - 65535): ")
+        # Input Validation - must be a number and must be between 1024 and 65535
+        if response.isnumeric and int(response) in range(1024, 65535):
             self._settings.port_number = int(response)
         else:
             print("Invalid Port Number")
