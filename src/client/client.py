@@ -17,6 +17,7 @@ from src.util.crypt import Crypt
 class Client:
     BUFFER_SIZE = 1024
     ENCODING_FORMAT = 'utf-8'
+    BYTE_ORDER = 'big'
 
     def __init__(self, settings):
         self.hostname = settings.hostname
@@ -113,12 +114,12 @@ class Client:
         if self.format is None:
             format_byte = b'\x00'
         else:
-            format_byte = self.format.value.to_bytes(1, 'big')
+            format_byte = self.format.value.to_bytes(1, self.BYTE_ORDER)
 
-        message = format_byte + self.source.value.to_bytes(1, 'big') + self.security.value.to_bytes(1, 'big')
+        message = format_byte + self.source.value.to_bytes(1, self.BYTE_ORDER) + self.security.value.to_bytes(1, self.BYTE_ORDER)
 
         length = len(message)
-        self.sock.send(length.to_bytes(4, 'big') + message)
+        self.sock.send(length.to_bytes(4, self.BYTE_ORDER) + message)
 
     def send_payload(self):
         self.prepare_package()
@@ -131,4 +132,4 @@ class Client:
         message_bytes = self._package_data + end_marker
 
         length = len(message_bytes)
-        self.sock.send(length.to_bytes(4, 'big') + message_bytes)
+        self.sock.send(length.to_bytes(4, self.BYTE_ORDER) + message_bytes)
