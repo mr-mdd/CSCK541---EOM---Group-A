@@ -83,10 +83,12 @@ class ClientManager:
                 return
         else:
             self.received_data = self.message
-
-        self.decrypt_data()
-        self.process_by_source()
-        self.output()
+        try:
+            self.decrypt_data()
+            self.process_by_source()
+            self.output()
+        except Exception as e:
+            print(f"Error: {e}")
 
     def apply_client_settings(self):
         self.pickling_format = int.from_bytes(self.message[:1], self.BYTE_ORDER)
