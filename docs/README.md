@@ -21,7 +21,7 @@ It includes an application to create a dictionary, serialisation it, and send to
 
 3. Initiate the Program:
 
-   Post setup, initiate the program with: python3 main.py
+   Post setup, run server_wizard.py and client_wizard.py
 
 
 **Testing**
