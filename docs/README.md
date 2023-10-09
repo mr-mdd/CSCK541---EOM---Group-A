@@ -19,7 +19,7 @@ It includes an application to create a dictionary, serialisation it, and send to
 
    Navigate to the Directory: cd CSCK541---EOM---Group-A
 
-   pip install -r requirements.txt
+   Ensure essential dependencies are installed via: pip install -r requirements.txt
 
 3. Initiate the Program:
 
