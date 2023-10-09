@@ -34,9 +34,13 @@ This project comprises a set of tools that serve as building blocks for communic
 The project group consists of:
 
 Jonathan Jackson (Project Manager)
+
 Kwan Sin Chan (Tester)
+
 Daniel Davis (Software Engineer)
+
 Micah Duchesne (Tester)
+
 Miguel Aires Ribeiro Valadas (Software Architect)
 
 **License**
