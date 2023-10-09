@@ -8,8 +8,10 @@ It includes an application to create a dictionary, serialisation it, and send to
 **How do I get started?**
 ------
 1. Prerequisites:
-A functioning computer system (Windows/Mac/Linux).
-An installed version of Python 3.x.
+
+   A functioning computer system (Windows/Mac/Linux).
+
+   An installed version of Python 3.x.
 
 2. Installation & Setup:
 
@@ -18,7 +20,8 @@ An installed version of Python 3.x.
    Navigate to the Directory: cd CSCK541---EOM---Group-A
 
 3. Initiate the Program:
-Post setup, initiate the program with: python3 main.py
+
+   Post setup, initiate the program with: python3 main.py
 
 
 **Testing**
