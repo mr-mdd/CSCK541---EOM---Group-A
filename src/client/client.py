@@ -15,7 +15,7 @@ from src.util.crypt import Crypt
 
 
 class Client:
-    BUFFER_SIZE = 2048
+    BUFFER_SIZE = 1024  # 1KB
     ENCODING_FORMAT = 'utf-8'
     BYTE_ORDER = 'big'
 
