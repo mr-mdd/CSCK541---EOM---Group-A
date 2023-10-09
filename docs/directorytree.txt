@@ -2,7 +2,9 @@ CSCK541---EOM---Group-A/
 ┣ docs/
 ┃ ┣ LICENSE
 ┃ ┣ README.md
-┃ ┗ directorytree.txt
+┃ ┣ directorytree.txt
+┃ ┣ Requirements.docx
+┃ ┗ User_Guide.docx
 ┣ src/
 ┃ ┣ client/
 ┃ ┃ ┣ __init__.py
