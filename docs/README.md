@@ -12,7 +12,7 @@ Install the necessary packages that can be found in SECTION
 
 **Testing**
 ------
-For performance and unit tests, please see SECTION
+This project comprises a set of tools that serve as building blocks for communication between a client and a server. The primary entities under examination include the client, the server, utility tools like Branston and Crypt, and a suite of enums.
 
 
 **Acknowledgements**
