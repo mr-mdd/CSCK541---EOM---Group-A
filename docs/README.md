@@ -13,7 +13,8 @@ An installed version of Python 3.x.
 
 2. Installation & Setup:
 git clone: https://github.com/mr-mdd/CSCK541---EOM---Group-A.git
-\n Navigate to the Directory: cd CSCK541---EOM---Group-A
+
+Navigate to the Directory: cd CSCK541---EOM---Group-A
 
 3. Initiate the Program:
 Post setup, initiate the program with: python3 main.py
